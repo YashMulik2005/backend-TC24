@@ -1,5 +1,6 @@
 const SavedModel = require("../model/saved");
 const ProjectModel = require("../model/projects");
+const sendmail = require("../utils/mailUtils");
 
 const save = async (req, res) => {
     const { project_id, user_id } = req.body;
@@ -45,5 +46,6 @@ const getSaved = async (req, res) => {
         }
     })
 }
+
 
 module.exports = { save, remove, getSaved }

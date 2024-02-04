@@ -1,6 +1,7 @@
 const collegeModel = require('../model/College');
 const POCModel = require('../model/poc')
 const bcrypt = require("bcrypt");
+const sendmail = require("../utils/mailUtils");
 
 const addCollege = async (req, res) => {
     try {
@@ -63,7 +64,7 @@ const addPOC = async (req, res) => {
             }
         })
     }
-    const existpoc = await POCModel.findOne({ name: username })
+    const existpoc = await POCModel.findOne({ username: username })
     if (existpoc) {
         return res.status(200).json({
             data: {
@@ -81,6 +82,8 @@ const addPOC = async (req, res) => {
         allocated_college: null
     })
     await poc.save()
+
+    sendmail(email, username, password, "POC");
     return res.status(200).json({
         data: {
             status: 200,

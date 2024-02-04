@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require('dotenv');
 const DepartmentModel = require("../model/department");
 const HODModel = require("../model/hod");
+const sendmail = require("../utils/mailUtils");
 
 dotenv.config()
 const jwtkey = process.env.jwt_key;
@@ -180,6 +181,9 @@ const addHOD = async (req, res) => {
         allocated_department: null,
     })
     await hod.save()
+
+    sendmail(email, username, password, "HOD");
+
     return res.status(200).json({
         data: {
             status: 200,

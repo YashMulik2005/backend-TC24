@@ -9,12 +9,10 @@ const HodSchema = mongoose.Schema({
     password: {
         type: String,
         required: true,
-        unique: true
     },
     email: {
         type: String,
         required: true,
-        unique: true
     },
     userType: {
         type: String,
@@ -22,8 +20,6 @@ const HodSchema = mongoose.Schema({
     },
     mobileNo: {
         type: Number,
-        required: true,
-        unique: true
     },
     allocated_college: {
         type: mongoose.Schema.Types.ObjectId, ref: 'college'

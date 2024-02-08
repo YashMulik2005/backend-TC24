@@ -25,10 +25,6 @@ const AuthSchema = mongoose.Schema({
     allocated_college: {
         type: mongoose.Schema.Types.ObjectId, ref: 'college'
     },
-    allocated_department: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'dapartments'
-    }
-
 })
 
 const AuthModel = mongoose.model("Auth", AuthSchema);

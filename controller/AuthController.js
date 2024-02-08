@@ -64,14 +64,23 @@ const authLogin = async (req, res) => {
 
 const authSignup = async (req, res) => {
     try {
-        const { username, password, email, userType, mobileNo } = req.body;
+        const { username, password, email, userType, mobileNo ,fullName} = req.body;
 
         const userexist = await AuthModel.findOne({ username: username });
         if (userexist) {
             return res.status(200).json({
                 data: {
                     status: false,
-                    msg: "username exist..."
+                    msg: "Username Already Exists"
+                }
+            })
+        }
+        const emailExist = await AuthModel.findOne({ email: email });
+        if (emailExist) {
+            return res.status(200).json({
+                data: {
+                    status: false,
+                    msg: "Email Already Exists"
                 }
             })
         }
@@ -79,16 +88,18 @@ const authSignup = async (req, res) => {
         const user = new AuthModel({
             username: username,
             password: hashedPassword,
+            fullName:fullName,
             email: email,
             userType: userType,
-            mobileNo: mobileNo
+            mobileNo: mobileNo,
+          
         })
         await user.save()
 
         return res.status(200).json({
             data: {
-                status: 200,
-                msg: "Account created sucessfully.."
+                status:200,
+                msg: "Account Created Successfully"
             }
         })
     } catch (err) {

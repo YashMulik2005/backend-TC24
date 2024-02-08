@@ -10,6 +10,10 @@ const AuthSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    fullName:{
+        type:String,
+        required:true
+    },
     email: {
         type: String,
         required: true,
@@ -28,7 +32,6 @@ const AuthSchema = mongoose.Schema({
     allocated_department: {
         type: mongoose.Schema.Types.ObjectId, ref: 'dapartments'
     }
-
 })
 
 const AuthModel = mongoose.model("Auth", AuthSchema);

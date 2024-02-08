@@ -48,6 +48,6 @@ app.use("/api/like", likeRoute);
 app.use("/api/comment", commentRoute);
 app.use('/api/save', savedRoute);
 
-app.listen(3000, () => {
+app.listen(8000, () => {
     console.log("server started...");
 })

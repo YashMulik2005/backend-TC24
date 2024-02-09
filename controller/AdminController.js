@@ -5,9 +5,9 @@ const sendmail = require("../utils/mailUtils");
 
 const addCollege = async (req, res) => {
     try {
-        const user = req.user;
-        const { name, about, poc, } = req.body;
-        if (!user.type == "admin") {
+        // const user = req.user;
+        const { name, about, poc,userType } = req.body;
+        if (!userType === "admin") {
             return res.status(403).json({
                 data: {
                     status: false,

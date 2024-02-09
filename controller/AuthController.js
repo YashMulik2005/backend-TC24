@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 dotenv.config()
 const jwtkey = process.env.jwt_key;
-
+console.log(jwtkey);
 const test = async (req, res) => {
     const user = req.user;
     console.log(user);
@@ -64,7 +64,7 @@ const authLogin = async (req, res) => {
 
 const authSignup = async (req, res) => {
     try {
-        const { username, password, email, userType, mobileNo ,fullName} = req.body;
+        const { username, password, email, userType, mobileNo ,fullName,allocated_college} = req.body;
 
         const userexist = await AuthModel.findOne({ username: username });
         if (userexist) {
@@ -92,7 +92,7 @@ const authSignup = async (req, res) => {
             email: email,
             userType: userType,
             mobileNo: mobileNo,
-          
+            allocated_college:allocated_college          
         })
         await user.save()
 

@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../utils/authUtil');
-const { getAllCollge, getOneCollege } = require("../controller/CollegeController");
+const { getAllColleges, getOneCollege } = require("../controller/CollegeController");
+// const { getAllColleges, getOneCollege,addCollege } = require("../controller/CollegeController");
 
-router.get("/allCollge", getAllCollge)
+router.get("/getAllColleges", getAllColleges)
 router.post("/onecollge", getOneCollege)
+
+// router.post("/addCollege", addCollege)
 
 module.exports = router;

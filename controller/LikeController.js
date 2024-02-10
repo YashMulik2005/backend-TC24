@@ -36,5 +36,8 @@ const disLike = async (req, res) => {
     })
 }
 
+const test = async (req, res) => {
+    const { image } = req.body;
 
-module.exports = { addLike, disLike }
+}
+module.exports = { addLike, disLike, test };

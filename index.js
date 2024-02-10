@@ -13,6 +13,8 @@ const likeRoute = require("./routes/Like");
 const commentRoute = require("./routes/Comment");
 const savedRoute = require("./routes/Saved");
 
+const { configureCloudinary } = require("./utils/imageuploadUtils")
+
 const app = express();
 app.use(cors({
     origin: "*"
@@ -36,6 +38,7 @@ mongoose
         console.log(err);
     });
 
+configureCloudinary();
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/admin', adminRoutes);

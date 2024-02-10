@@ -6,8 +6,8 @@ const sendmail = require("../utils/mailUtils");
 const addCollege = async (req, res) => {
     try {
         // const user = req.user;
-        const { name, about, poc,userType } = req.body;
-        if (!userType === "admin") {
+        const { name, about, poc, userType } = req.body;
+        if (userType != "admin") {
             return res.status(403).json({
                 data: {
                     status: false,
@@ -56,7 +56,7 @@ const addCollege = async (req, res) => {
 const addPOC = async (req, res) => {
     const user = req.user;
     const { username, password, email, mobileNo, } = req.body;
-    if (!user.type == "admin") {
+    if (user.type != "admin") {
         return res.status(403).json({
             data: {
                 status: false,
@@ -92,4 +92,67 @@ const addPOC = async (req, res) => {
     })
 }
 
-module.exports = { addCollege, addPOC };
+const deleteCollge = async (req, res) => {
+    const { collge_id } = req.body;
+    const user = req.user;
+    if (user.type != "admin") {
+        return res.status(403).json({
+            data: {
+                status: false,
+                msg: "Not have permission to do this task."
+            }
+        })
+    }
+
+    const collge = await collegeModel.findByIdAndDelete(collge_id);
+
+    if (!collge) {
+        return res.status(404).json({
+            data: {
+                status: false,
+                msg: "College not found."
+            }
+        });
+    }
+
+    return res.status(200).json({
+        data: {
+            status: true,
+            msg: "delete sucessfully..."
+        }
+    })
+}
+
+
+const deletePOC = async (req, res) => {
+    const { poc_id } = req.body;
+    const user = req.user;
+    if (user.type != "admin") {
+        return res.status(403).json({
+            data: {
+                status: false,
+                msg: "Not have permission to do this task."
+            }
+        })
+    }
+
+    const collge = await POCModel.findByIdAndDelete(poc_id);
+
+    if (!collge) {
+        return res.status(404).json({
+            data: {
+                status: false,
+                msg: "POC not found."
+            }
+        });
+    }
+
+    return res.status(200).json({
+        data: {
+            status: true,
+            msg: "delete sucessfully..."
+        }
+    })
+}
+
+module.exports = { addCollege, addPOC, deleteCollge, deletePOC };

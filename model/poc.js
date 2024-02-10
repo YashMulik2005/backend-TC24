@@ -17,8 +17,9 @@ const PocSchema = mongoose.Schema({
     mobileNo: {
         type: Number,
     },
-    allocated_college: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'college',
+    College: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'College',
+        required:true
     },
 })
 

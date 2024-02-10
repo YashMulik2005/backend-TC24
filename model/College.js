@@ -12,19 +12,12 @@ const collegeSchema = mongoose.Schema({
   address: {
     type: String,
   },
-  poc: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AuthModel",
-  },
-  departments: {
-    type: [String],
-  },
   time: {
     type: Date,
     default: Date.now,
   },
 });
 
-const college = mongoose.model("collge", collegeSchema);
+const college = mongoose.model("College", collegeSchema);
 
 module.exports = college;

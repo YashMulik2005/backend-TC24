@@ -2,11 +2,12 @@ const CollegeModel = require("../model/College");
 
 const getAllColleges = async (req, res) => {
     const Hods = await CollegeModel.find();
-
+    const totalColleges = await CollegeModel.countDocuments();
     return res.status(200).json({
         data: {
             status: true,
-            data: Hods
+            data: Hods,
+            totalColleges:totalColleges
         }
     })
 }

@@ -19,14 +19,32 @@ const getAllHod = async (req, res) => {
 }
 
 const getOneHod = async (req, res) => {
-    const { hod } = req.body;
-    const data = await HodModel.find({ _id: hod });
-    return res.status(200).json({
-        data: {
-            status: true,
-            data: data
+    try {
+        const { hod } = req.body;
+        const data = await HodModel.findOne({ _id: hod });
+        if (!data) {
+            return res.status(404).json({
+                data: {
+                    status: false,
+                    msg: "not found"
+                }
+            })
         }
-    })
+        return res.status(200).json({
+            data: {
+                status: true,
+                data: data
+            }
+        })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            data: {
+                status: false,
+                error: err
+            }
+        })
+    }
 }
 
 const addProject = async (req, res) => {
@@ -109,4 +127,35 @@ const HodLogin = async (req, res) => {
     })
 }
 
-module.exports = { getAllHod, getOneHod, addProject, HodLogin }
+const deleteproject = async (req, res) => {
+    const { project_id } = req.body;
+    const user = req.user;
+    if (user.type != "HOD") {
+        return res.status(403).json({
+            data: {
+                status: false,
+                msg: "Not have permission to do this task."
+            }
+        })
+    }
+
+    const collge = await ProjectModel.findByIdAndDelete(project_id);
+
+    if (!collge) {
+        return res.status(404).json({
+            data: {
+                status: false,
+                msg: "project not found."
+            }
+        });
+    }
+
+    return res.status(200).json({
+        data: {
+            status: true,
+            msg: "delete sucessfully..."
+        }
+    })
+}
+
+module.exports = { getAllHod, getOneHod, addProject, HodLogin, deleteproject }

@@ -204,4 +204,66 @@ const getOnePOC = async (req, res) => {
     })
 }
 
-module.exports = { getPoc, addCollegeInfo, POClogin, addDepartmentc, addHOD, getOnePOC };
+const deleteDPT = async (req, res) => {
+    const { dpt_id } = req.body;
+    const user = req.user;
+    if (user.type != "POC") {
+        return res.status(403).json({
+            data: {
+                status: false,
+                msg: "Not have permission to do this task."
+            }
+        })
+    }
+
+    const collge = await DepartmentModel.findByIdAndDelete(dpt_id);
+
+    if (!collge) {
+        return res.status(404).json({
+            data: {
+                status: false,
+                msg: "Department not found."
+            }
+        });
+    }
+
+    return res.status(200).json({
+        data: {
+            status: true,
+            msg: "delete sucessfully..."
+        }
+    })
+}
+
+const deleteHOD = async (req, res) => {
+    const { hod_id } = req.body;
+    const user = req.user;
+    if (user.type != "POC") {
+        return res.status(403).json({
+            data: {
+                status: false,
+                msg: "Not have permission to do this task."
+            }
+        })
+    }
+
+    const collge = await HODModel.findByIdAndDelete(hod_id);
+
+    if (!collge) {
+        return res.status(404).json({
+            data: {
+                status: false,
+                msg: "HOD not found."
+            }
+        });
+    }
+
+    return res.status(200).json({
+        data: {
+            status: true,
+            msg: "delete sucessfully..."
+        }
+    })
+}
+
+module.exports = { getPoc, addCollegeInfo, POClogin, addDepartmentc, addHOD, getOnePOC, deleteDPT, deleteHOD };

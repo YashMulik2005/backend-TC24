@@ -5,8 +5,8 @@ const sendmail = require("../utils/mailUtils");
 const addCollege = async (req, res) => {
   try {
     // const user = req.user;
-    const { name, about, address, userType } = req.body;
-    if (!userType === "admin") {
+    const { name, about,address, userType } = req.body;
+    if (userType != "admin") {
       return res.status(403).json({
         data: {
           status: false,
@@ -50,9 +50,8 @@ const addCollege = async (req, res) => {
 };
 
 const addPOC = async (req, res) => {
-
-  const { username, password, email, mobileNo,college,userType } = req.body;
-  console.log('college',college);
+  const { username, password, email, mobileNo, college, userType } = req.body;
+  console.log("college", college);
   if (!userType == "admin") {
     return res.status(403).json({
       data: {
@@ -106,38 +105,108 @@ const getAllCollegesAdmin = async (req, res) => {
   });
 };
 
-const searchCollege = async(req,res)=>{
-    try {
-        const { search } = req.query; // Get the search query from the query parameters
-    
-        const faculties = await collegeModel.find({
-          $or: [
-            { name: { $regex: ".*" + search + ".*", $options: "i" } },
-            { about: { $regex: ".*" + search + ".*", $options: "i" } },
-            { address: { $regex: ".*" + search + ".*", $options: "i" } }
-          ],
-        });
-    
-        res.status(200).send({ success: true, faculties });
-      } catch (error) {
-        console.error("Error:", error);
-        res.status(500).send({ success: false, message: "Internal server error" });
-      }
-}
-const getPocAdmin = async(req,res)=>{
-    const { page, rows } = req.body;
-    const currentPage = page + 1;
-    console.log(page, rows);
-    // const skip = (currentPage - 1) * rows;
-    const offset = Math.ceil((currentPage - 1) * rows);
-    const pocS = await POCModel.find({}).populate("College")
-    const totalColleges = await POCModel.countDocuments();
-    return res.status(200).json({
+const searchCollege = async (req, res) => {
+  try {
+    const { search } = req.query; // Get the search query from the query parameters
+
+    const faculties = await collegeModel.find({
+      $or: [
+        { name: { $regex: ".*" + search + ".*", $options: "i" } },
+        { about: { $regex: ".*" + search + ".*", $options: "i" } },
+        { address: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    });
+
+    res.status(200).send({ success: true, faculties });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
+const getPocAdmin = async (req, res) => {
+  const { page, rows } = req.body;
+  const currentPage = page + 1;
+  console.log(page, rows);
+  // const skip = (currentPage - 1) * rows;
+  const offset = Math.ceil((currentPage - 1) * rows);
+  const pocS = await POCModel.find({}).populate("College");
+  const totalColleges = await POCModel.countDocuments();
+  return res.status(200).json({
+    data: {
+      status: true,
+      data: pocS,
+      totalColleges: totalColleges,
+    },
+  });
+};
+const deleteCollge = async (req, res) => {
+  const { collge_id } = req.body;
+  const user = req.user;
+  if (user.type != "admin") {
+    return res.status(403).json({
       data: {
-        status: true,
-        data: pocS,
-        totalColleges: totalColleges,
+        status: false,
+        msg: "Not have permission to do this task.",
       },
     });
-}
-module.exports = { addCollege, addPOC, getAllCollegesAdmin,searchCollege,getPocAdmin };
+  }
+
+  const collge = await collegeModel.findByIdAndDelete(collge_id);
+
+  if (!collge) {
+    return res.status(404).json({
+      data: {
+        status: false,
+        msg: "College not found.",
+      },
+    });
+  }
+
+  return res.status(200).json({
+    data: {
+      status: true,
+      msg: "delete sucessfully...",
+    },
+  });
+};
+
+const deletePOC = async (req, res) => {
+  const { poc_id } = req.body;
+  const user = req.user;
+  if (user.type != "admin") {
+    return res.status(403).json({
+      data: {
+        status: false,
+        msg: "Not have permission to do this task.",
+      },
+    });
+  }
+
+  const collge = await POCModel.findByIdAndDelete(poc_id);
+
+  if (!collge) {
+    return res.status(404).json({
+      data: {
+        status: false,
+        msg: "POC not found.",
+      },
+    });
+  }
+
+  return res.status(200).json({
+    data: {
+      status: true,
+      msg: "delete sucessfully...",
+    },
+  });
+};
+
+module.exports = {
+  addCollege,
+  addPOC,
+  getAllCollegesAdmin,
+  searchCollege,
+  getPocAdmin,
+  deleteCollge,
+  deletePOC,
+};

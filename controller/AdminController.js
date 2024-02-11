@@ -6,8 +6,8 @@ const addCollege = async (req, res) => {
   try {
     // const user = req.user;
     const { name, about,address, userType } = req.body;
-    if (userType != "admin") {
-      return res.status(403).json({
+    if (userType !== "admin") {
+      return res.status(200).json({
         data: {
           status: false,
           msg: "Not have permission to do this task.",
@@ -35,7 +35,7 @@ const addCollege = async (req, res) => {
     return res.status(200).json({
       data: {
         status: true,
-        msg: "college added sucessfully...",
+        msg: "College added sucessfully...",
       },
     });
   } catch (err) {
@@ -123,6 +123,7 @@ const searchCollege = async (req, res) => {
     res.status(500).send({ success: false, message: "Internal server error" });
   }
 };
+
 const getPocAdmin = async (req, res) => {
   const { page, rows } = req.body;
   const currentPage = page + 1;
@@ -139,11 +140,12 @@ const getPocAdmin = async (req, res) => {
     },
   });
 };
-const deleteCollge = async (req, res) => {
-  const { collge_id } = req.body;
-  const user = req.user;
-  if (user.type != "admin") {
-    return res.status(403).json({
+
+const deleteCollege = async (req, res) => {
+  const { college_id,userType } = req.body;
+  console.log(college_id);
+    if (userType !== "admin") {
+    return res.status(200).json({
       data: {
         status: false,
         msg: "Not have permission to do this task.",
@@ -151,10 +153,10 @@ const deleteCollge = async (req, res) => {
     });
   }
 
-  const collge = await collegeModel.findByIdAndDelete(collge_id);
+  const college = await collegeModel.findByIdAndDelete(college_id);
 
-  if (!collge) {
-    return res.status(404).json({
+  if (!college) {
+    return res.status(200).json({
       data: {
         status: false,
         msg: "College not found.",
@@ -165,7 +167,7 @@ const deleteCollge = async (req, res) => {
   return res.status(200).json({
     data: {
       status: true,
-      msg: "delete sucessfully...",
+      msg: "College Deleted Successfully !",
     },
   });
 };
@@ -201,12 +203,66 @@ const deletePOC = async (req, res) => {
   });
 };
 
+const editCollege = async (req, res) => {
+  try {
+    const { id, name, about, address, userType } = req.body;
+    if (userType !== "admin") {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "You do not have permission to perform this action.",
+        },
+      });
+    }
+
+    const existingCollege = await collegeModel.findById(id);
+    if (!existingCollege) {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "College not found.",
+        },
+      });
+    }
+    if(existingCollege.name === name && existingCollege.about === about &&
+      existingCollege.address === address ){
+        return res.status(200).json({
+          data: {
+            status: true,
+            msg: "No Changes In College Details.",
+          },
+        });
+    }
+    existingCollege.name = name;
+    existingCollege.about = about;
+    existingCollege.address = address;
+
+    const updatedCollege = await existingCollege.save();
+
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "College Updated Successfully.",
+        updatedCollege: updatedCollege,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: "Error occurred while updating college.",
+      },
+    });
+  }
+};
+
 module.exports = {
   addCollege,
   addPOC,
   getAllCollegesAdmin,
   searchCollege,
   getPocAdmin,
-  deleteCollge,
-  deletePOC,
+  deleteCollege,
+  deletePOC,editCollege
 };

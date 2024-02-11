@@ -7,21 +7,34 @@ const getAllColleges = async (req, res) => {
         data: {
             status: true,
             data: Hods,
-            totalColleges:totalColleges
+            totalColleges: totalColleges
         }
     })
 }
 
 const getOneCollege = async (req, res) => {
-    const { college } = req.body;
-    const data = await CollegeModel.find({ _id: college });
-    return res.status(200).json({
-        data: {
+    try {
+        const { college } = req.body;
+        const data = await CollegeModel.findOne({ _id: college });
+        if (!data) {
+            return res.status(404).json({
+                status: false,
+                msg: "College not found"
+            });
+        }
+
+        return res.status(200).json({
             status: true,
             data: data
-        }
-    })
-}
+        });
+    } catch (err) {
+        return res.status(500).json({
+            status: false,
+            msg: "Internal server error",
+            error: err.message
+        });
+    }
+};
 
 // const addCollege = async(req,res)=>{
 //     const {name,about,address,poc,departments} = req.body
@@ -41,7 +54,7 @@ const getOneCollege = async (req, res) => {
 //        address:address,
 //        poc:poc,
 //        departments:departments
-      
+
 //     })
 //     await college.save()
 //     return res.status(200).json({
@@ -53,5 +66,21 @@ const getOneCollege = async (req, res) => {
 
 // }
 
+const search = async (req, res) => {
+    const { title } = req.body;
+    console.log(title);
+    try {
+        const college = await CollegeModel.find({ name: { $regex: ".*" + title + ".*", $options: "i" } });
+        if (college) {
+            return res.status(200).json({
+                data: { college }
+            });
+        }
+        return res.status(404).json({ success: falsee, data: "not found" });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
 
-module.exports = { getAllColleges, getOneCollege }
+
+module.exports = { getAllColleges, getOneCollege, search }

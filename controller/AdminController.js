@@ -360,32 +360,28 @@ const editPoc = async (req, res) => {
     existingPoc.College = college;
 
     const updatedPoc = await existingPoc.save();
-    return res
-      .status(200)
-      .json({
-        data: { status: true, msg: "POC Updated Successfully", updatedPoc },
-      });
+    return res.status(200).json({
+      data: { status: true, msg: "POC Updated Successfully", updatedPoc },
+    });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        data: { status: false, msg: "Error occurred while updating POC." },
-      });
+    return res.status(500).json({
+      data: { status: false, msg: "Error occurred while updating POC." },
+    });
   }
 };
 
 const searchPoc = async (req, res) => {
   try {
     const { search } = req.query; // Get the search query from the query parameters
-console.log(search);
+    console.log(search);
     const poc = await POCModel.find({
       $or: [
         { username: { $regex: ".*" + search + ".*", $options: "i" } },
         { email: { $regex: ".*" + search + ".*", $options: "i" } },
       ],
     });
-    console.log('poc',poc);
+    console.log("poc", poc);
 
     res.status(200).send({ success: true, poc });
   } catch (error) {

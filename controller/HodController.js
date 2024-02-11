@@ -58,7 +58,7 @@ const addProject = async (req, res) => {
         })
     }
 
-    const { title, description, multimedia, contributers, live_demo, college, department } = req.body;
+    const { title, description, multimedia, contributers, live_demo, college, department, type } = req.body;
 
     const existProject = await ProjectModel.findOne({ title: title, allocated_college: college });
     if (existProject) {
@@ -77,7 +77,8 @@ const addProject = async (req, res) => {
         contributers: contributers,
         live_demo: live_demo,
         allocated_college: college,
-        allocated_department: department
+        allocated_department: department,
+        type: type
     })
     await project.save();
 

@@ -5,7 +5,7 @@ const sendmail = require("../utils/mailUtils");
 const addCollege = async (req, res) => {
   try {
     // const user = req.user;
-    const { name, about,address, userType } = req.body;
+    const { name, about, address, userType } = req.body;
     if (userType !== "admin") {
       return res.status(200).json({
         data: {
@@ -50,10 +50,67 @@ const addCollege = async (req, res) => {
 };
 
 const addPOC = async (req, res) => {
-  const { username, password, email, mobileNo, college, userType } = req.body;
+  const { email, mobileNo, college, userType } = req.body;
+  // Generate a random username with a maximum length of 7 characters
+  function generateRandomUsername() {
+    const characters = "abcdefghijklmnopqrstuvwxyz";
+    let username = "";
+    const usernameLength = Math.floor(Math.random() * 7) + 1; // Random length between 1 and 7
+    for (let i = 0; i < usernameLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      username += characters[randomIndex];
+    }
+    return username;
+  }
+
+  // Generate a random password with a maximum length of 8 characters
+  function generateRandomPassword() {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    const passwordLength = Math.floor(Math.random() * 8) + 1; // Random length between 1 and 8
+    for (let i = 0; i < passwordLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      password += characters[randomIndex];
+    }
+    return password;
+  }
+
+  // Check if the generated username is unique
+  async function isUsernameUnique(username) {
+    const existingUser = await POCModel.findOne({ username: username });
+    return !existingUser;
+  }
+
+  // Check if the generated password is unique
+  async function isPasswordUnique(password) {
+    const existingUser = await POCModel.findOne({ password: password });
+    return !existingUser;
+  }
+
+  // Generate a unique username
+  async function generateUniqueUsername() {
+    let username = generateRandomUsername();
+    while (!(await isUsernameUnique(username))) {
+      username = generateRandomUsername();
+    }
+    return username;
+  }
+
+  // Generate a unique password
+  async function generateUniquePassword() {
+    let password = generateRandomPassword();
+    while (!(await isPasswordUnique(password))) {
+      password = generateRandomPassword();
+    }
+    return password;
+  }
+  const username = await generateUniqueUsername();
+  const password = await generateUniquePassword();
+
   console.log("college", college);
-  if (!userType == "admin") {
-    return res.status(403).json({
+  if (userType !== "admin") {
+    return res.status(200).json({
       data: {
         status: false,
         msg: "Not have permission to do this task.",
@@ -83,7 +140,7 @@ const addPOC = async (req, res) => {
   return res.status(200).json({
     data: {
       status: 200,
-      msg: "created sucessfully...",
+      msg: "Poc Created Successfully.",
     },
   });
 };
@@ -142,9 +199,9 @@ const getPocAdmin = async (req, res) => {
 };
 
 const deleteCollege = async (req, res) => {
-  const { college_id,userType } = req.body;
+  const { college_id, userType } = req.body;
   console.log(college_id);
-    if (userType !== "admin") {
+  if (userType !== "admin") {
     return res.status(200).json({
       data: {
         status: false,
@@ -173,13 +230,12 @@ const deleteCollege = async (req, res) => {
 };
 
 const deletePOC = async (req, res) => {
-  const { poc_id } = req.body;
-  const user = req.user;
-  if (user.type != "admin") {
-    return res.status(403).json({
+  const { poc_id, userType } = req.body;
+  if (userType !== "admin") {
+    return res.status(200).json({
       data: {
         status: false,
-        msg: "Not have permission to do this task.",
+        msg: "Not Have Permission to Delete POC.",
       },
     });
   }
@@ -187,7 +243,7 @@ const deletePOC = async (req, res) => {
   const collge = await POCModel.findByIdAndDelete(poc_id);
 
   if (!collge) {
-    return res.status(404).json({
+    return res.status(200).json({
       data: {
         status: false,
         msg: "POC not found.",
@@ -198,7 +254,7 @@ const deletePOC = async (req, res) => {
   return res.status(200).json({
     data: {
       status: true,
-      msg: "delete sucessfully...",
+      msg: "POC Deleted Successfully...",
     },
   });
 };
@@ -224,14 +280,17 @@ const editCollege = async (req, res) => {
         },
       });
     }
-    if(existingCollege.name === name && existingCollege.about === about &&
-      existingCollege.address === address ){
-        return res.status(200).json({
-          data: {
-            status: true,
-            msg: "No Changes In College Details.",
-          },
-        });
+    if (
+      existingCollege.name === name &&
+      existingCollege.about === about &&
+      existingCollege.address === address
+    ) {
+      return res.status(200).json({
+        data: {
+          status: true,
+          msg: "No Changes In College Details.",
+        },
+      });
     }
     existingCollege.name = name;
     existingCollege.about = about;
@@ -257,6 +316,83 @@ const editCollege = async (req, res) => {
   }
 };
 
+const editPoc = async (req, res) => {
+  try {
+    const { id, email, phone, college, userType } = req.body;
+    console.log(id, email, phone, college, userType);
+    if (userType !== "admin") {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "You do not have permission to perform this action.",
+        },
+      });
+    }
+    const existingPoc = await POCModel.findById(id);
+    if (!existingPoc) {
+      return res.status(200).json({ error: "POC not found" });
+    }
+    console.log(
+      "Hello",
+      existingPoc.email,
+      email,
+      existingPoc.mobileNo,
+      phone,
+      existingPoc.College,
+      college
+    );
+
+    if (
+      existingPoc.email === email &&
+      existingPoc.mobileNo === phone &&
+      existingPoc.College === `new ObjectId('${college}')`
+    ) {
+      return res.status(200).json({
+        data: {
+          status: true,
+          msg: "No Changes In POC Details.",
+        },
+      });
+    }
+
+    existingPoc.email = email;
+    existingPoc.mobileNo = phone;
+    existingPoc.College = college;
+
+    const updatedPoc = await existingPoc.save();
+    return res
+      .status(200)
+      .json({
+        data: { status: true, msg: "POC Updated Successfully", updatedPoc },
+      });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({
+        data: { status: false, msg: "Error occurred while updating POC." },
+      });
+  }
+};
+
+const searchPoc = async (req, res) => {
+  try {
+    const { search } = req.query; // Get the search query from the query parameters
+console.log(search);
+    const poc = await POCModel.find({
+      $or: [
+        { username: { $regex: ".*" + search + ".*", $options: "i" } },
+        { email: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    });
+    console.log('poc',poc);
+
+    res.status(200).send({ success: true, poc });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
 module.exports = {
   addCollege,
   addPOC,
@@ -264,5 +400,8 @@ module.exports = {
   searchCollege,
   getPocAdmin,
   deleteCollege,
-  deletePOC,editCollege
+  deletePOC,
+  editCollege,
+  editPoc,
+  searchPoc,
 };

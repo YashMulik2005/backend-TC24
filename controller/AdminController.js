@@ -5,7 +5,7 @@ const sendmail = require("../utils/mailUtils");
 const addCollege = async (req, res) => {
   try {
     // const user = req.user;
-    const { name, about,address, userType } = req.body;
+    const { name, about, address, userType } = req.body;
     if (userType !== "admin") {
       return res.status(200).json({
         data: {
@@ -142,9 +142,9 @@ const getPocAdmin = async (req, res) => {
 };
 
 const deleteCollege = async (req, res) => {
-  const { college_id,userType } = req.body;
+  const { college_id, userType } = req.body;
   console.log(college_id);
-    if (userType !== "admin") {
+  if (userType !== "admin") {
     return res.status(200).json({
       data: {
         status: false,
@@ -224,14 +224,14 @@ const editCollege = async (req, res) => {
         },
       });
     }
-    if(existingCollege.name === name && existingCollege.about === about &&
-      existingCollege.address === address ){
-        return res.status(200).json({
-          data: {
-            status: true,
-            msg: "No Changes In College Details.",
-          },
-        });
+    if (existingCollege.name === name && existingCollege.about === about &&
+      existingCollege.address === address) {
+      return res.status(200).json({
+        data: {
+          status: true,
+          msg: "No Changes In College Details.",
+        },
+      });
     }
     existingCollege.name = name;
     existingCollege.about = about;
@@ -264,5 +264,5 @@ module.exports = {
   searchCollege,
   getPocAdmin,
   deleteCollege,
-  deletePOC,editCollege
+  deletePOC, editCollege
 };

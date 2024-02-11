@@ -33,6 +33,10 @@ const projectSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
+    type: {
+        type: String,
+        required: true
+    },
     allocated_college: {
         type: mongoose.Schema.Types.ObjectId, ref: 'college'
     },

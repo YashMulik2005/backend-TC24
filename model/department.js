@@ -10,12 +10,12 @@ const departmentSchema = mongoose.Schema({
         type: String
     },
     college: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'college'
+        type: mongoose.Schema.Types.ObjectId, ref: 'College'
     },
     hod: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'AuthModel'
+        type: mongoose.Schema.Types.ObjectId, ref: 'Department',
+        default:null
     },
-
     time: {
         type: Date,
         default: Date.now

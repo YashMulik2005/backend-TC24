@@ -1,5 +1,7 @@
 const collegeModel = require("../model/College");
 const POCModel = require("../model/poc");
+const authModel = require("../model/Auth");
+const hodModel = require("../model/hod");
 const bcrypt = require("bcrypt");
 const sendmail = require("../utils/mailUtils");
 const addCollege = async (req, res) => {
@@ -389,6 +391,20 @@ const searchPoc = async (req, res) => {
     res.status(500).send({ success: false, message: "Internal server error" });
   }
 };
+
+const getTotalCount = async (req, res) => {
+  try {
+    const totalCountCollege = await collegeModel.countDocuments();
+    const totalCountStudents = await authModel.countDocuments();
+    const totalCountPoc = await POCModel.countDocuments();
+    const totalCountHod = await hodModel.countDocuments();
+    res.send({ totalCountCollege,totalCountStudents ,totalCountPoc,totalCountHod});
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   addCollege,
   addPOC,
@@ -400,4 +416,5 @@ module.exports = {
   editCollege,
   editPoc,
   searchPoc,
+  getTotalCount
 };

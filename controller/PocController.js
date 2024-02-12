@@ -97,25 +97,22 @@ const POClogin = async (req, res) => {
 }
 
 
-const addDepartmentc = async (req, res) => {
-    const { name, about, college, HOD } = req.body;
-    const user = req.user;
-    if (user.type != "POC") {
-        return res.status(403).json({
+const addDepartmentPoc = async (req, res) => {
+    const { name,about, college ,userType} = req.body;
+    if (userType != "poc") {
+        return res.status(200).json({
             data: {
                 status: false,
                 msg: "No access to do this..."
             }
         })
     }
-
     const existdpt = await DepartmentModel.findOne({ name: name, college: college });
-
     if (existdpt) {
-        return res.status(400).json({
+        return res.status(200).json({
             data: {
-                status: 400,
-                msg: "department already exist...."
+                status: false,
+                msg: "Department Already Exist...."
             }
         })
     }
@@ -124,25 +121,14 @@ const addDepartmentc = async (req, res) => {
         name: name,
         about: about,
         college: college,
-        hod: HOD
     })
 
     const savedDpt = await department.save();
 
-    const UpdateHod = await HODModel.findOneAndUpdate({ _id: HOD }, { allocated_department: savedDpt._id });
-
-    const clg = await collegeModel.findOne({ _id: college });
-    if (clg.departments == null) {
-        const newdpt = [savedDpt._id];
-        const Updateclg = await collegeModel.findOneAndUpdate({ _id: college }, { departments: newdpt });
-    } else {
-        const newdpt = [savedDpt._id, ...clg.departments];
-        const Updateclg = await collegeModel.findOneAndUpdate({ _id: college }, { departments: newdpt });
-    }
     return res.status(200).json({
-        dara: {
+        data: {
             status: true,
-            msg: "department added.."
+            msg: "Department Added Successfully."
         }
     })
 
@@ -266,4 +252,4 @@ const deleteHOD = async (req, res) => {
     })
 }
 
-module.exports = { getPoc, addCollegeInfo, POClogin, addDepartmentc, addHOD, getOnePOC, deleteDPT, deleteHOD };
+module.exports = { getPoc, addCollegeInfo, POClogin, addDepartmentPoc, addHOD, getOnePOC, deleteDPT, deleteHOD };

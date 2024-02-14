@@ -3,7 +3,7 @@ const ProjectModel = require("../model/projects");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-
+const cloudinary = require("../utils/imageuploadUtils");
 dotenv.config();
 const jwtkey = process.env.jwt_key;
 
@@ -58,6 +58,7 @@ const addProject = async (req, res) => {
     department,
     type,
     userType,
+    timestamp,
   } = req.body;
   if (userType != "HOD") {
     return res.status(200).json({
@@ -79,11 +80,12 @@ const addProject = async (req, res) => {
       },
     });
   }
-
+  const imageUrl = await cloudinary.uploader.upload(multimedia);
+  console.log("imageUrl", imageUrl);
   const project = new ProjectModel({
     title: title,
     description: description,
-    multimedia: multimedia,
+    multimedia: imageUrl.secure_url,
     contributers: contributers,
     live_demo: live_demo,
     allocated_college: college,
@@ -235,11 +237,13 @@ const editProject = async (req, res) => {
         },
       });
     }
-
+    if(multimedia.length > 0) {
+      const imageUrl = await cloudinary.uploader.upload(multimedia);
+      existingProject.multimedia = imageUrl.secure_url;
+    }
     existingProject.title = title;
-    existingProject.description =description;
-    existingProject.multimedia = multimedia;
-    existingProject.contributers=contributers;
+    existingProject.description = description;
+    existingProject.contributers = contributers;
     existingProject.live_demo = live_demo;
     existingProject.type = type;
 
@@ -263,14 +267,13 @@ const editProject = async (req, res) => {
   }
 };
 
-const searchProject =async (req,res)=>{
-
+const searchProject = async (req, res) => {
   try {
     const { search } = req.query;
     const { allocated_department } = req.body;
-  
+
     console.log(search, allocated_department);
-  
+
     const projects = await ProjectModel.find({
       allocated_department: allocated_department,
       $or: [
@@ -282,14 +285,13 @@ const searchProject =async (req,res)=>{
         { type: { $regex: ".*" + search + ".*", $options: "i" } },
       ],
     });
-  
+
     res.status(200).send({ success: true, projects });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send({ success: false, message: "Internal server error" });
   }
-  
-}
+};
 module.exports = {
   getAllHod,
   getOneHod,
@@ -297,5 +299,6 @@ module.exports = {
   HodLogin,
   deleteproject,
   getProjects,
-  editProject,searchProject
+  editProject,
+  searchProject,
 };

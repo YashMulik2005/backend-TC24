@@ -13,13 +13,15 @@ const likeRoute = require("./routes/Like");
 const commentRoute = require("./routes/Comment");
 const savedRoute = require("./routes/Saved");
 
-const { configureCloudinary } = require("./utils/imageuploadUtils")
+const cloudinary = require("./utils/imageuploadUtils");
 
 const app = express();
 app.use(cors({
     origin: "*"
 }))
-app.use(express.json());
+
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 mongoose.set("strictQuery", false);
 var db = "mongodb+srv://yashmulik95:ByqJDh1MIulKfJKW@cluster0.smtzecd.mongodb.net/?retryWrites=true&w=majority";
@@ -38,7 +40,6 @@ mongoose
         console.log(err);
     });
 
-configureCloudinary();
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/admin', adminRoutes);
@@ -50,6 +51,22 @@ app.use('/api/project', projectRoute);
 app.use("/api/like", likeRoute);
 app.use("/api/comment", commentRoute);
 app.use('/api/save', savedRoute);
+
+app.post("/Image", async (req, res) => {
+    //console.log("vycy", req.body);
+    try {
+        //console.log("qwer", req.body);
+        const result = await cloudinary.uploader.upload(req.body.image);
+        console.log(result);
+        return res.status(200).json({ result });
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(400).json({
+            err
+        })
+    }
+});
 
 app.listen(8000, () => {
     console.log("server started...");

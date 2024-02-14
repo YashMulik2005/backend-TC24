@@ -22,7 +22,7 @@ const HodSchema = mongoose.Schema({
         type: Number,
     },
     allocated_college: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'college'
+        type: mongoose.Schema.Types.ObjectId, ref: 'College'
     },
     allocated_department: {
         type: mongoose.Schema.Types.ObjectId, ref: 'dapartments'

@@ -14,13 +14,7 @@ const projectSchema = mongoose.Schema({
         type: [String]
     },
     contributers: {
-        type: {
-            c1: String,
-            c2: String,
-            c3: String,
-            c4: String
-        },
-        required: true
+        type: String
     },
     live_demo: {
         type: String,
@@ -38,7 +32,7 @@ const projectSchema = mongoose.Schema({
         required: true
     },
     allocated_college: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'college'
+        type: mongoose.Schema.Types.ObjectId, ref: 'College'
     },
     allocated_department: {
         type: mongoose.Schema.Types.ObjectId, ref: 'dapartments'

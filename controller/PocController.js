@@ -1,255 +1,475 @@
-const collegeModel = require('../model/College');
-const POCModel = require('../model/poc')
-const jwt = require('jsonwebtoken');
+const collegeModel = require("../model/College");
+const POCModel = require("../model/poc");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 const DepartmentModel = require("../model/department");
 const HODModel = require("../model/hod");
 const sendmail = require("../utils/mailUtils");
+const HodModel = require("../model/hod");
 
-dotenv.config()
+dotenv.config();
 const jwtkey = process.env.jwt_key;
 
 const getPoc = async (req, res) => {
-    try {
-        const POC = await POCModel.find();
-        return res.status(200).json({
-            data: {
-                status: true,
-                data: POC
-            }
-        })
-    } catch (err) {
-        return res.status(400).json({
-            data: {
-                status: false,
-                data: err
-            }
-        })
-    }
-}
+  try {
+    const POC = await POCModel.find();
+    return res.status(200).json({
+      data: {
+        status: true,
+        data: POC,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      data: {
+        status: false,
+        data: err,
+      },
+    });
+  }
+};
 
 const addCollegeInfo = async (req, res) => {
-    const user = req.user;
-    if (user.type != "POC") {
-        return res.status(403).json({
-            data: {
-                status: false,
-                msg: "No access to do this..."
-            }
-        })
-    }
+  const user = req.user;
+  if (user.type != "POC") {
+    return res.status(403).json({
+      data: {
+        status: false,
+        msg: "No access to do this...",
+      },
+    });
+  }
 
-    try {
-        const { college_id, name, about, address, } = req.body;
-        const college = await collegeModel.findOneAndUpdate({ _id: college_id }, { name: name, about: about, address: address, poc: user._id });
-        return res.status(200).json({
-            data: {
-                status: true,
-                msg: "updated suceessfully.."
-            }
-        })
-    } catch (err) {
-        return res.status(400).json({
-            data: {
-                status: false,
-                msg: err,
-            }
-        })
-    }
-}
+  try {
+    const { college_id, name, about, address } = req.body;
+    const college = await collegeModel.findOneAndUpdate(
+      { _id: college_id },
+      { name: name, about: about, address: address, poc: user._id }
+    );
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "updated suceessfully..",
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: err,
+      },
+    });
+  }
+};
 
 const POClogin = async (req, res) => {
-    const { username, password } = req.body;
-    const existpoc = await POCModel.findOne({ username: username })
-    if (!existpoc) {
-        return res.status(400).json({
-            data: {
-                status: false,
-                msg: "username or password is invalid."
-            }
-        })
-    }
+  const { username, password } = req.body;
+  console.log("Hello", username, password);
+  const existpoc = await POCModel.findOne({ username: username });
+  if (!existpoc) {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "username or password are invalid.",
+      },
+    });
+  }
 
-    const match = await bcrypt.compare(password, existpoc.password);
-    if (match) {
-        const data = {
-            id: existpoc._id,
-            name: existpoc.username,
-            email: existpoc.email,
-            type: "POC",
-        }
-        const token = jwt.sign(data, jwtkey);
-        return res.status(200).json({
-            data: {
-                status: true,
-                msg: "login sucessful...",
-                token: token
-            }
-        })
-    }
-    return res.status(400).json({
-        data: {
-            status: false,
-            msg: "username or password is invalid.",
-        }
-    })
-}
-
+  const match = await bcrypt.compare(password, existpoc.password);
+  if (match) {
+    const data = {
+      id: existpoc._id,
+      name: existpoc.username,
+      email: existpoc.email,
+      College: existpoc.College,
+      type: "poc",
+    };
+    const token = jwt.sign(data, jwtkey);
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "POC Logged In Successfully",
+        token: token,
+        pocDetails: data,
+      },
+    });
+  }
+  return res.status(400).json({
+    data: {
+      status: false,
+      msg: "username or password is invalid.",
+    },
+  });
+};
 
 const addDepartmentPoc = async (req, res) => {
-    const { name,about, college ,userType} = req.body;
-    if (userType != "poc") {
-        return res.status(200).json({
-            data: {
-                status: false,
-                msg: "No access to do this..."
-            }
-        })
-    }
-    const existdpt = await DepartmentModel.findOne({ name: name, college: college });
-    if (existdpt) {
-        return res.status(200).json({
-            data: {
-                status: false,
-                msg: "Department Already Exist...."
-            }
-        })
-    }
-
-    const department = new DepartmentModel({
-        name: name,
-        about: about,
-        college: college,
-    })
-
-    const savedDpt = await department.save();
-
+  const { name, about, college, userType } = req.body;
+  if (userType != "poc") {
     return res.status(200).json({
+      data: {
+        status: false,
+        msg: "No access to do this...",
+      },
+    });
+  }
+  const existdpt = await DepartmentModel.findOne({
+    name: name,
+    college: college,
+  });
+  if (existdpt) {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "Department Already Exist....",
+      },
+    });
+  }
+
+  const department = new DepartmentModel({
+    name: name,
+    about: about,
+    college: college,
+  });
+
+  const savedDpt = await department.save();
+
+  return res.status(200).json({
+    data: {
+      status: true,
+      msg: "Department Added Successfully.",
+    },
+  });
+};
+
+const editDepartmentPoc = async (req, res) => {
+  try {
+    const { id, name, about, userType } = req.body;
+    console.log(id, name, about, userType);
+    if (userType !== "poc") {
+      return res.status(200).json({
         data: {
-            status: true,
-            msg: "Department Added Successfully."
-        }
-    })
+          status: false,
+          msg: "You do not have permission to perform this action.",
+        },
+      });
+    }
+    const existingDep = await DepartmentModel.findById(id);
+    if (!existingDep) {
+      return res.status(200).json({ error: "Department not found" });
+    }
+    if (existingDep.name === name && existingDep.about === about) {
+      return res.status(200).json({
+        data: {
+          status: true,
+          msg: "No Changes In Department Details.",
+        },
+      });
+    }
 
-}
+    existingDep.name = name;
+    existingDep.about = about;
 
+    const updatedDep = await existingDep.save();
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "Department Updated Successfully",
+        updatedDep,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      data: { status: false, msg: "Error occurred while updating POC." },
+    });
+  }
+};
+
+// const addHOD = async (req, res) => {
+//     const { username, password, email, mobileNo, userType } = req.body;
+
+//   if (userType != "poc") {
+//     return res.status(200).json({
+//       data: {
+//         status: false,
+//         msg: "No access to do this...",
+//       },
+//     });
+//   }
+
+//   const existhod = await HODModel.findOne({ username: username });
+//   if (existhod) {
+//     return res.status(200).json({
+//       data: {
+//         status: false,
+//         msg: "use same other username...",
+//       },
+//     });
+//   }
+
+//   const hashedPassword = await bcrypt.hash(password, 10);
+//   const hod = new HODModel({
+//     username: username,
+//     password: hashedPassword,
+//     email: email,
+//     mobileNo: mobileNo,
+//     allocated_college: allocated_college,
+//     userType: "HOD",
+//     allocated_department: null,
+//   });
+//   await hod.save();
+
+//   sendmail(email, username, password, "HOD");
+
+//   return res.status(200).json({
+//     data: {
+//       status: 200,
+//       data: "created sucessfully...",
+//     },
+//   });
+// };
 const addHOD = async (req, res) => {
-    const user = req.user;
-    if (user.type != "POC") {
-        return res.status(403).json({
-            data: {
-                status: false,
-                msg: "No access to do this..."
-            }
-        })
+  const { email, mobileNo, allocated_college, allocated_department, userType } = req.body;
+  console.log( email, mobileNo, allocated_college, allocated_department, userType );
+  // Generate a random username with a maximum length of 7 characters
+  function generateRandomUsername() {
+    const characters = "abcdefghijklmnopqrstuvwxyz";
+    let username = "";
+    const usernameLength = Math.floor(Math.random() * 7) + 1; // Random length between 1 and 7
+    for (let i = 0; i < usernameLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      username += characters[randomIndex];
     }
+    return username;
+  }
 
-    const { username, password, email, mobileNo, allocated_college } = req.body;
-    const existhod = await HODModel.findOne({ username: username })
-    if (existhod) {
-        return res.status(200).json({
-            data: {
-                status: false,
-                msg: "use same other username..."
-            }
-        })
+  function generateRandomPassword() {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    const passwordLength = Math.floor(Math.random() * 8) + 1; // Random length between 1 and 8
+    for (let i = 0; i < passwordLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      password += characters[randomIndex];
     }
+    return password;
+  }
+  // Check if the generated username is unique
+  async function isUsernameUnique(username) {
+    const existingUser = await HODModel.findOne({ username: username });
+    const existingUser2 = await POCModel.findOne({ username: username });
+    return !existingUser && !existingUser2;
+  }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const hod = new HODModel({
-        username: username,
-        password: hashedPassword,
-        email: email,
-        mobileNo: mobileNo,
-        allocated_college: allocated_college,
-        userType: "HOD",
-        allocated_department: null,
-    })
-    await hod.save()
+  // Check if the generated password is unique
+  async function isPasswordUnique(password) {
+    const existingUser = await HODModel.findOne({ password: password });
+    const existingUser2 = await POCModel.findOne({ password: password });
+    return !existingUser && !existingUser2;
+  }
 
-    sendmail(email, username, password, "HOD");
+  // Generate a unique username
+  async function generateUniqueUsername() {
+    let username = generateRandomUsername();
+    while (!(await isUsernameUnique(username))) {
+      username = generateRandomUsername();
+    }
+    return username;
+  }
 
+  // Generate a unique password
+  async function generateUniquePassword() {
+    let password = generateRandomPassword();
+    while (!(await isPasswordUnique(password))) {
+      password = generateRandomPassword();
+    }
+    return password;
+  }
+  const username = await generateUniqueUsername();
+  const password = await generateUniquePassword();
+
+  if (userType !== "poc") {
     return res.status(200).json({
-        data: {
-            status: 200,
-            data: "created sucessfully..."
-        }
-    })
+      data: {
+        status: false,
+        msg: "Not have permission to do this task.",
+      },
+    });
+  }
+  const exitHod = await HODModel.findOne({ username: username });
+  if (exitHod) {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "use same other username...",
+      },
+    });
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const hod = new HODModel({
+    username: username,
+    password: hashedPassword,
+    email: email,
+    mobileNo: mobileNo,
+    allocated_college: allocated_college,
+    userType: "HOD",
+    allocated_department: allocated_department,
+  });
 
-}
+  await hod.save();
+  const hodId = hod._id;
+  await DepartmentModel.findOneAndUpdate(
+    { _id: allocated_department }, // Assuming department name is used for identification
+    { $set: { hod: hodId } },
+    { new: true }
+  );
+
+  sendmail(email, username, password, "HOD");
+  return res.status(200).json({
+    data: {
+      status: 200,
+      msg: "Hod Created Successfully.",
+    },
+  });
+};
+
 
 const getOnePOC = async (req, res) => {
-    const { poc } = req.body;
-    const data = await POCModel.find({ _id: poc });
-    return res.status(200).json({
-        data: {
-            status: true,
-            data: data
-        }
-    })
-}
+  const { poc } = req.body;
+  const data = await POCModel.find({ _id: poc });
+  return res.status(200).json({
+    data: {
+      status: true,
+      data: data,
+    },
+  });
+};
 
 const deleteDPT = async (req, res) => {
-    const { dpt_id } = req.body;
-    const user = req.user;
-    if (user.type != "POC") {
-        return res.status(403).json({
-            data: {
-                status: false,
-                msg: "Not have permission to do this task."
-            }
-        })
-    }
-
-    const collge = await DepartmentModel.findByIdAndDelete(dpt_id);
-
-    if (!collge) {
-        return res.status(404).json({
-            data: {
-                status: false,
-                msg: "Department not found."
-            }
-        });
-    }
-
+  const { dpt_id, userType } = req.body;
+  if (userType != "poc") {
     return res.status(200).json({
-        data: {
-            status: true,
-            msg: "delete sucessfully..."
-        }
-    })
-}
+      data: {
+        status: false,
+        msg: "Not have permission to do this task.",
+      },
+    });
+  }
+
+  const dept = await DepartmentModel.findByIdAndDelete(dpt_id);
+
+  if (!dept) {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "Department not found.",
+      },
+    });
+  }
+
+  return res.status(200).json({
+    data: {
+      status: true,
+      msg: "Department Deleted Successfully",
+    },
+  });
+};
 
 const deleteHOD = async (req, res) => {
-    const { hod_id } = req.body;
-    const user = req.user;
-    if (user.type != "POC") {
-        return res.status(403).json({
-            data: {
-                status: false,
-                msg: "Not have permission to do this task."
-            }
-        })
-    }
+  const { hod_id,userType } = req.body;
+  const user = req.user;
+  if (userType != "poc") {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "Not have permission to do this task.",
+      },
+    });
+  }
 
-    const collge = await HODModel.findByIdAndDelete(hod_id);
+  const collge = await HODModel.findByIdAndDelete(hod_id);
 
-    if (!collge) {
-        return res.status(404).json({
-            data: {
-                status: false,
-                msg: "HOD not found."
-            }
-        });
-    }
+  if (!collge) {
+    return res.status(200).json({
+      data: {
+        status: false,
+        msg: "HOD not found.",
+      },
+    });
+  }
 
+  return res.status(200).json({
+    data: {
+      status: true,
+      msg: "delete sucessfully...",
+    },
+  });
+};
+const getAllHod =async(req,res) => {
+  const { page, rows,college } = req.body;
+  const currentPage = page + 1;
+  console.log(page, rows);
+  const offset = Math.ceil((currentPage - 1) * rows);
+  const Hod = await HodModel.find({allocated_college:college}).populate("allocated_college").populate("allocated_department").skip(offset).limit(rows);
+    const totalHods = await HodModel.countDocuments({allocated_college:college})
     return res.status(200).json({
         data: {
             status: true,
-            msg: "delete sucessfully..."
+            data: Hod,totalHods
         }
     })
 }
+const editHodPoc = async (req, res) => {
+  try {
+    const { id, email, mobileNo, userType } = req.body;
+    console.log(id, email,mobileNo, userType);
+    if (userType !== "poc") {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "You do not have permission to perform this action.",
+        },
+      });
+    }
+    const existingDep = await HodModel.findById(id);
+    if (!existingDep) {
+      return res.status(200).json({ error: "Hod not found" });
+    }
+    if (existingDep.email === email && existingDep.mobileNo === mobileNo) {
+      return res.status(200).json({
+        data: {
+          status: true,
+          msg: "No Changes In Hod Details.",
+        },
+      });
+    }
 
-module.exports = { getPoc, addCollegeInfo, POClogin, addDepartmentPoc, addHOD, getOnePOC, deleteDPT, deleteHOD };
+    existingDep.email=email,
+    existingDep.mobileNo=mobileNo
+
+    const updatedDep = await existingDep.save();
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "Hod Updated Successfully",
+        updatedDep,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      data: { status: false, msg: "Error occurred while updating POC." },
+    });
+  }
+};
+module.exports = {
+  getPoc,
+  addCollegeInfo,
+  POClogin,
+  addDepartmentPoc,
+  editDepartmentPoc,
+  addHOD,
+  getOnePOC,
+  deleteDPT,
+  deleteHOD,getAllHod,editHodPoc
+};

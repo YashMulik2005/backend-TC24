@@ -151,7 +151,6 @@ const getAllCollegesAdmin = async (req, res) => {
   const { page, rows } = req.body;
   const currentPage = page + 1;
   console.log(page, rows);
-  // const skip = (currentPage - 1) * rows;
   const offset = Math.ceil((currentPage - 1) * rows);
   const Hods = await collegeModel.find().skip(offset).limit(rows);
   const totalColleges = await collegeModel.countDocuments();
@@ -189,7 +188,7 @@ const getPocAdmin = async (req, res) => {
   console.log(page, rows);
   // const skip = (currentPage - 1) * rows;
   const offset = Math.ceil((currentPage - 1) * rows);
-  const pocS = await POCModel.find({}).populate("College");
+  const pocS = await POCModel.find({}).populate("College").skip(offset).limit(rows)
   const totalColleges = await POCModel.countDocuments();
   return res.status(200).json({
     data: {
@@ -334,16 +333,6 @@ const editPoc = async (req, res) => {
     if (!existingPoc) {
       return res.status(200).json({ error: "POC not found" });
     }
-    console.log(
-      "Hello",
-      existingPoc.email,
-      email,
-      existingPoc.mobileNo,
-      phone,
-      existingPoc.College,
-      college
-    );
-
     if (
       existingPoc.email === email &&
       existingPoc.mobileNo === phone &&

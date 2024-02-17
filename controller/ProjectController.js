@@ -2,93 +2,102 @@ const ProjectModel = require("../model/projects");
 const cloudinary = require("../utils/imageuploadUtils");
 
 const getAllprojects = async (req, res) => {
-  const Hods = await ProjectModel.find({isActive:"true"});
+    try {
+        const Hods = await ProjectModel.find({ isActive: "true" });
 
-  return res.status(200).json({
-    data: {
-      status: true,
-      data: Hods,
-    },
-  });
+        return res.status(200).json({
+            data: {
+                status: true,
+                data: Hods,
+            },
+        });
+    } catch (err) {
+        return res.status(400).json({
+            data: {
+                status: false,
+                msg: "no data found",
+            },
+        });
+    }
 };
 
-const getAllProjectsByCollege =async(req,res)=>{
+const getAllProjectsByCollege = async (req, res) => {
     try {
         const { college_id } = req.body;
         console.log(college_id);
         const projects = await ProjectModel.find({
-            allocated_college:college_id
+            allocated_college: college_id
         }).populate("allocated_college")
-          .populate("allocated_department")
-          .populate("created_By");
-    
+            .populate("allocated_department")
+            .populate("created_By");
+
         return res.status(200).json({
-          data: {
-            status: true,
-            data: projects,
-          },
+            data: {
+                status: true,
+                data: projects,
+            },
         });
-      } catch (err) {
+    } catch (err) {
         console.log(err);
         return res.status(400).json({
-          data: {
-            status: false,
-            msg: err,
-          },
+            data: {
+                status: false,
+                msg: err,
+            },
         });
-      }
+    }
 }
 const getOneproject = async (req, res) => {
 
-  try {
-    const { project_id } = req.body;
-    console.log(project_id);
-    const projects = await ProjectModel.find({
-      _id:project_id
-    }).populate("allocated_college")
-      .populate("allocated_department")
-      .populate("created_By");
+    try {
+        const { project_id } = req.body;
+        console.log(project_id);
+        const projects = await ProjectModel.find({
+            _id: project_id
+        }).populate("allocated_college")
+            .populate("allocated_department")
+            .populate("created_By");
 
-    return res.status(200).json({
-      data: {
-        status: true,
-        data: projects,
-      },
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(400).json({
-      data: {
-        status: false,
-        msg: err,
-      },
-    });
-  }
+        return res.status(200).json({
+            data: {
+                status: true,
+                data: projects,
+            },
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({
+            data: {
+                status: false,
+                msg: err,
+            },
+        });
+    }
 };
 
 const filterproject = async (req, res) => {
-  const { time, type } = req.body;
-  let projects;
+    const { time, type } = req.body;
+    let projects;
 
-  try {
-    if (type === "all") {
-      if (time === "oldest") {
-        projects = await ProjectModel.find().sort({ time: 1 });
-      } else {
-        projects = await ProjectModel.find().sort({ time: -1 });
-      }
-    } else {
-      if (time === "oldest") {
-        projects = await ProjectModel.find({ type: type }).sort({ time: 1 });
-      } else {
-        projects = await ProjectModel.find({ type: type }).sort({ time: -1 });
-      }
+    try {
+        if (type === "all") {
+            if (time === "oldest") {
+                projects = await ProjectModel.find().sort({ time: 1 });
+            } else {
+                projects = await ProjectModel.find().sort({ time: -1 });
+            }
+        } else {
+            if (time === "oldest") {
+                projects = await ProjectModel.find({ type: type }).sort({ time: 1 });
+            } else {
+                projects = await ProjectModel.find({ type: type }).sort({ time: -1 });
+            }
+        }
+
+        return res.status(200).json({ success: true, data: projects });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
     }
-
-    return res.status(200).json({ success: true, data: projects });
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
 };
 
 const search = async (req, res) => {
@@ -105,7 +114,7 @@ const search = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
     }
-  } 
+}
 
 const addProjectByStudent = async (req, res) => {
     try {
@@ -153,4 +162,4 @@ const addProjectByStudent = async (req, res) => {
         res.status(500).send({ success: false, message: "Internal server error" });
     }
 }
-module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent,getAllProjectsByCollege }
+module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent, getAllProjectsByCollege }

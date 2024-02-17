@@ -47,7 +47,7 @@ const authLogin = async (req, res) => {
               status: true,
               msg: "HOD login sucessful...",
               token: token,
-              hodDetails: Hod,
+              existuser: Hod,
             },
           });
         }
@@ -67,7 +67,7 @@ const authLogin = async (req, res) => {
               status: true,
               msg: "POC Logged In Successfully",
               token: token,
-              pocDetails: existpoc,
+              existuser: existpoc,
             },
           });
         }

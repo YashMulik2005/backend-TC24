@@ -91,6 +91,7 @@ const addProject = async (req, res) => {
     allocated_college: college,
     allocated_department: department,
     type: type,
+    isActive:true
   });
   await project.save();
 

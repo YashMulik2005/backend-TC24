@@ -91,7 +91,8 @@ const addProject = async (req, res) => {
     allocated_college: college,
     allocated_department: department,
     type: type,
-    isActive:true
+    isActive:true,
+    userType:"HOD"
   });
   await project.save();
 
@@ -313,7 +314,39 @@ const hodDashboardDetails = async (req, res) => {
   }
 };
 
+const  handleStatus =async (req,res)=>{
+  try{
+    const {project_id,active} =req.body
+    const existingProject = await ProjectModel.findById(project_id);
 
+    if (!existingProject) {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "College not found.",
+        },
+      });
+    }
+    existingProject.isActive = !active
+    const updatedProject = await existingProject.save()
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "Status Updated Successfully.",
+        updatedProject: updatedProject,
+      },
+    });
+     
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: "Error occurred while updating college.",
+      },
+    });
+  }
+}
 
 module.exports = {
   getAllHod,
@@ -323,5 +356,5 @@ module.exports = {
   deleteproject,
   getProjects,
   editProject,
-  searchProject,hodDashboardDetails
+  searchProject,hodDashboardDetails,handleStatus
 };

@@ -1,34 +1,34 @@
 const DPTModel = require("../model/department");
 
 const getAllDpt = async (req, res) => {
-    const { page, rows,college } = req.body;
+    const { page, rows, college } = req.body;
     const currentPage = page + 1;
     const offset = Math.ceil((currentPage - 1) * rows);
-    const Dept = await DPTModel.find({college:college}).populate("college").skip(offset).limit(rows)
+    const Dept = await DPTModel.find({ college: college }).populate("college").skip(offset).limit(rows)
     const totalDepartments = await DPTModel.countDocuments()
     return res.status(200).json({
         data: {
             status: true,
-            data: Dept,totalDepartments
+            data: Dept, totalDepartments
         }
     })
 }
 
 const getAllDptAddHod = async (req, res) => {
-    const {college}=req.body
-    const Dept = await DPTModel.find({college:college}).populate("college")
-    const totalDepartments = await DPTModel.countDocuments({college:college})
+    const { college } = req.body
+    const Dept = await DPTModel.find({ college: college }).populate("college")
+    const totalDepartments = await DPTModel.countDocuments({ college: college })
     return res.status(200).json({
         data: {
             status: true,
-            data: Dept,totalDepartments
+            data: Dept, totalDepartments
         }
     })
 }
 
 const getOneDpt = async (req, res) => {
     const { dpt } = req.body;
-    const data = await DPTModel.find({ _id: dpt });
+    const data = await DPTModel.findOne({ _id: dpt });
     return res.status(200).json({
         data: {
             status: true,
@@ -38,4 +38,4 @@ const getOneDpt = async (req, res) => {
 }
 
 
-module.exports = { getAllDpt, getOneDpt ,getAllDptAddHod}
+module.exports = { getAllDpt, getOneDpt, getAllDptAddHod }

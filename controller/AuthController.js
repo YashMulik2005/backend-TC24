@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const DepartmentModel = require("../model/department");
+const ProjectModel = require("../model/projects");
 dotenv.config();
 const jwtkey = process.env.jwt_key;
 console.log(jwtkey);
@@ -40,7 +41,7 @@ const authLogin = async (req, res) => {
           status: true,
           msg: "login sucessful...",
           token: token,
-          existuser:existuser
+          existuser: existuser,
         },
       });
     }
@@ -72,7 +73,7 @@ const authSignup = async (req, res) => {
       mobileNo,
       fullName,
       allocated_college,
-      allocated_department
+      allocated_department,
     } = req.body;
 
     const userexist = await AuthModel.findOne({ username: username });
@@ -102,7 +103,7 @@ const authSignup = async (req, res) => {
       userType: userType,
       mobileNo: mobileNo,
       allocated_college: allocated_college,
-      allocated_department:allocated_department
+      allocated_department: allocated_department,
     });
     await user.save();
 
@@ -125,28 +126,29 @@ const authSignup = async (req, res) => {
 };
 
 const getDepartment = async (req, res) => {
-
-    const { college_id } = req.body;
-    console.log(college_id);
-    const Dept = await DepartmentModel.find({college:college_id})
-    return res.status(200).json({
-        data: {
-            status: true,
-            data: Dept
-        }
-    })
-  
+  const { college_id } = req.body;
+  console.log(college_id);
+  const Dept = await DepartmentModel.find({ college: college_id });
+  return res.status(200).json({
+    data: {
+      status: true,
+      data: Dept,
+    },
+  });
 };
 
-
-const getAllProjects =async(req,res)=>{
+const getAllProjects = async (req, res) => {
   try {
     const { allocated_college } = req.body;
+    console.log(allocated_college);
     const projects = await ProjectModel.find({
       allocated_college: allocated_college,
-    }).populate("allocated_college")
-      .populate("allocated_department");
-  
+      isActive: true,
+      userType: "Student",
+    })
+      .populate("allocated_college")
+      .populate("allocated_department")
+      .populate("created_By");
 
     return res.status(200).json({
       data: {
@@ -163,6 +165,13 @@ const getAllProjects =async(req,res)=>{
       },
     });
   }
-}
+};
 
-module.exports = { authLogin, authSignup, test ,getDepartment,getAllProjects};
+module.exports = {
+  authLogin,
+  authSignup,
+  test,
+  getDepartment,
+  getAllProjects,
+  getAllProjects,
+};

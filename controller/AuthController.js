@@ -71,6 +71,7 @@ const authSignup = async (req, res) => {
       mobileNo,
       fullName,
       allocated_college,
+      allocated_department
     } = req.body;
 
     const userexist = await AuthModel.findOne({ username: username });
@@ -100,6 +101,7 @@ const authSignup = async (req, res) => {
       userType: userType,
       mobileNo: mobileNo,
       allocated_college: allocated_college,
+      allocated_department:allocated_department
     });
     await user.save();
 
@@ -124,11 +126,12 @@ const authSignup = async (req, res) => {
 const getDepartment = async (req, res) => {
 
     const { college_id } = req.body;
+    console.log(college_id);
     const Dept = await DepartmentModel.find({college:college_id})
     return res.status(200).json({
         data: {
             status: true,
-            data: Dept,
+            data: Dept
         }
     })
   

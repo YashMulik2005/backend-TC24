@@ -164,11 +164,23 @@ const getAllProjects = async (req, res) => {
   }
 };
 
+const getuserproject =async(req,res)=>{
 
+  try  {
+    const {user}=req.body
+    const data = await ProjectModel.find({created_By:user});
+    return res.status(200).json({
+    data
+    });
+  } catch (error) {
+    console.log(error)
+  }
+}
 module.exports = {
   authLogin,
   authSignup,
   test,
   getDepartment,
   getAllProjects,
+  getuserproject
 };

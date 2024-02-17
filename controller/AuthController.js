@@ -139,16 +139,13 @@ const getDepartment = async (req, res) => {
 
 const getAllProjects = async (req, res) => {
   try {
-    const { allocated_college } = req.body;
-    console.log(allocated_college);
     const projects = await ProjectModel.find({
-      allocated_college: allocated_college,
-      isActive: true,
+      isActive: "true",
       userType: "Student",
     })
-      .populate("allocated_college")
-      .populate("allocated_department")
-      .populate("created_By");
+    .populate("allocated_college")
+    .populate("allocated_department")
+    .populate("created_By");
 
     return res.status(200).json({
       data: {
@@ -157,21 +154,21 @@ const getAllProjects = async (req, res) => {
       },
     });
   } catch (err) {
-    console.log(err);
-    return res.status(400).json({
+    console.error(err);
+    return res.status(500).json({
       data: {
         status: false,
-        msg: err,
+        msg: "Internal server error",
       },
     });
   }
 };
+
 
 module.exports = {
   authLogin,
   authSignup,
   test,
   getDepartment,
-  getAllProjects,
   getAllProjects,
 };

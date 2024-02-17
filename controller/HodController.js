@@ -327,7 +327,7 @@ const  handleStatus =async (req,res)=>{
         },
       });
     }
-    existingProject.isActive = !active
+    existingProject.isActive = active
     const updatedProject = await existingProject.save()
     return res.status(200).json({
       data: {

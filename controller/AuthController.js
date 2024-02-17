@@ -40,6 +40,7 @@ const authLogin = async (req, res) => {
           status: true,
           msg: "login sucessful...",
           token: token,
+          existuser:existuser
         },
       });
     }
@@ -134,4 +135,31 @@ const getDepartment = async (req, res) => {
   
 };
 
-module.exports = { authLogin, authSignup, test ,getDepartment};
+
+const getAllProjects =async(req,res)=>{
+  try {
+    const { allocated_college } = req.body;
+    const projects = await ProjectModel.find({
+      allocated_college: allocated_college,
+    }).populate("allocated_college")
+      .populate("allocated_department");
+  
+
+    return res.status(200).json({
+      data: {
+        status: true,
+        data: projects,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: err,
+      },
+    });
+  }
+}
+
+module.exports = { authLogin, authSignup, test ,getDepartment,getAllProjects};

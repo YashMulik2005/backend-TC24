@@ -17,7 +17,7 @@ const getOneCollege = async (req, res) => {
         const { college } = req.body;
         const data = await CollegeModel.findOne({ _id: college });
         if (!data) {
-            return res.status(404).json({
+            return res.status(200).json({
                 status: false,
                 msg: "College not found"
             });

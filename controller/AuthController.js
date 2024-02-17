@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const DepartmentModel = require("../model/department");
 const ProjectModel = require("../model/projects");
+const HodModel = require("../model/hod");
+const pocModel = require("../model/poc");
 dotenv.config();
 const jwtkey = process.env.jwt_key;
 console.log(jwtkey);
@@ -19,6 +21,58 @@ const authLogin = async (req, res) => {
 
     const existuser = await AuthModel.findOne({ username: username });
     if (!existuser) {
+      const existpoc = await pocModel.findOne({ username: username });
+      if (!existpoc) {
+        const Hod = await HodModel.findOne({ username: username });
+        if (!Hod) {
+          return res.status(200).json({
+            data: {
+              status: false,
+              msg: "username or password is invalid...",
+            },
+          });
+        }
+
+        const match = await bcrypt.compare(password, Hod.password);
+        if (match) {
+          const data = {
+            id: Hod._id,
+            name: Hod.username,
+            email: Hod.email,
+            type: "HOD",
+          };
+          const token = jwt.sign(data, jwtkey);
+          return res.status(200).json({
+            data: {
+              status: true,
+              msg: "HOD login sucessful...",
+              token: token,
+              hodDetails: Hod,
+            },
+          });
+        }
+      } else {
+        const match = await bcrypt.compare(password, existpoc.password);
+        if (match) {
+          const data = {
+            id: existpoc._id,
+            name: existpoc.username,
+            email: existpoc.email,
+            College: existpoc.College,
+            type: "poc",
+          };
+          const token = jwt.sign(data, jwtkey);
+          return res.status(200).json({
+            data: {
+              status: true,
+              msg: "POC Logged In Successfully",
+              token: token,
+              pocDetails: existpoc,
+            },
+          });
+        }
+      }
+
       return res.status(200).json({
         data: {
           status: false,
@@ -143,9 +197,9 @@ const getAllProjects = async (req, res) => {
       isActive: "true",
       userType: "Student",
     })
-    .populate("allocated_college")
-    .populate("allocated_department")
-    .populate("created_By");
+      .populate("allocated_college")
+      .populate("allocated_department")
+      .populate("created_By");
 
     return res.status(200).json({
       data: {
@@ -163,7 +217,6 @@ const getAllProjects = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   authLogin,

@@ -16,7 +16,7 @@ const HodSchema = mongoose.Schema({
     },
     userType: {
         type: String,
-        required: true,
+        default:"HOD"
     },
     mobileNo: {
         type: Number,

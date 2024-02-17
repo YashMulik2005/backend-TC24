@@ -21,6 +21,10 @@ const PocSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'College',
         required:true
     },
+    userType:{
+        type:String,
+        default:"poc"
+    }
 })
 
 const poc = mongoose.model("POC", PocSchema);

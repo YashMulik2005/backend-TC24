@@ -2,7 +2,7 @@ const ProjectModel = require("../model/projects");
 const cloudinary = require("../utils/imageuploadUtils");
 
 const getAllprojects = async (req, res) => {
-  const Hods = await ProjectModel.find();
+  const Hods = await ProjectModel.find({isActive:"true"});
 
   return res.status(200).json({
     data: {
@@ -11,6 +11,7 @@ const getAllprojects = async (req, res) => {
     },
   });
 };
+
 const getAllProjectsByCollege =async(req,res)=>{
     try {
         const { college_id } = req.body;

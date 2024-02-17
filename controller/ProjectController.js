@@ -116,6 +116,20 @@ const search = async (req, res) => {
     }
 }
 
+const searchStudentsProj = async (req, res) => {
+    const { title } = req.body;
+    try {
+        const projects = await ProjectModel.find({ userType: "Student", title: { $regex: ".*" + title + ".*", $options: "i" } });
+        if (projects) {
+            return res.status(200).json({
+                data: { projects }
+            });
+        }
+        return res.status(404).json({ success: false, data: "not found" });
+    } catch (error) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+}
 const addProjectByStudent = async (req, res) => {
     try {
         const { title, description, multimedia, contributors, liveDemo, type, allocated_college, allocated_department, created_By } = req.body
@@ -163,3 +177,4 @@ const addProjectByStudent = async (req, res) => {
     }
 }
 module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent, getAllProjectsByCollege }
+module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent, getAllProjectsByCollege, searchStudentsProj }

@@ -312,6 +312,9 @@ const hodDashboardDetails = async (req, res) => {
     });
   }
 };
+
+
+
 module.exports = {
   getAllHod,
   getOneHod,

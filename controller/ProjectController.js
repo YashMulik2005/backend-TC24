@@ -14,11 +14,11 @@ const getAllprojects = async (req, res) => {
 
 const getOneproject = async (req, res) => {
     const { project_id } = req.body;
-    const data = await ProjectModel.find({ _id: project_id });
+    const data = await ProjectModel.findOne({ _id: project_id });
     return res.status(200).json({
-            status: true,
-            data: data
-        
+        status: true,
+        data: data
+
     })
 }
 
@@ -63,50 +63,50 @@ const search = async (req, res) => {
     }
 }
 
-const addProjectByStudent =async (req,res)=>{
-    try{
-     const {title,description,multimedia,contributors,liveDemo,type,allocated_college,allocated_department,created_By} =req.body
-     console.log(title,description,multimedia,contributors,liveDemo,type,allocated_college,allocated_department,created_By,)
-     const existProject = await ProjectModel.findOne({
-        title: title,
-        allocated_college: allocated_college,
-      });
-      if (existProject) {
-        return res.status(200).json({
-          data: {
-            status: false,
-            msg: "Project with same name exist in your collage.",
-          },
+const addProjectByStudent = async (req, res) => {
+    try {
+        const { title, description, multimedia, contributors, liveDemo, type, allocated_college, allocated_department, created_By } = req.body
+        console.log(title, description, multimedia, contributors, liveDemo, type, allocated_college, allocated_department, created_By,)
+        const existProject = await ProjectModel.findOne({
+            title: title,
+            allocated_college: allocated_college,
         });
-      }
-      const imageUrl = await cloudinary.uploader.upload(multimedia);
-      console.log("imageUrl", imageUrl);
-      const project = new ProjectModel({
-        title: title,
-        description: description,
-        multimedia: imageUrl.secure_url,
-        contributers: contributors,
-        live_demo: liveDemo,
-        allocated_college: allocated_college,
-        allocated_department: allocated_department,
-        type:type,
-        created_By:created_By,
-        userType:"Student",
-      });
-      
-      await project.save();
-    
-      return res.status(200).json({
-        data: {
-          status: true,
-          msg: "Project added Sucessfully....",
-        },
-      });
-     
+        if (existProject) {
+            return res.status(200).json({
+                data: {
+                    status: false,
+                    msg: "Project with same name exist in your collage.",
+                },
+            });
+        }
+        const imageUrl = await cloudinary.uploader.upload(multimedia);
+        console.log("imageUrl", imageUrl);
+        const project = new ProjectModel({
+            title: title,
+            description: description,
+            multimedia: imageUrl.secure_url,
+            contributers: contributors,
+            live_demo: liveDemo,
+            allocated_college: allocated_college,
+            allocated_department: allocated_department,
+            type: type,
+            created_By: created_By,
+            userType: "Student",
+        });
 
-    }catch (error) {
-    console.error("Error:", error);
-    res.status(500).send({ success: false, message: "Internal server error" });
-  }
+        await project.save();
+
+        return res.status(200).json({
+            data: {
+                status: true,
+                msg: "Project added Sucessfully....",
+            },
+        });
+
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ success: false, message: "Internal server error" });
+    }
 }
-module.exports = { getAllprojects, getOneproject, filterproject, search ,addProjectByStudent }
+module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent }

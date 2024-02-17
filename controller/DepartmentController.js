@@ -1,10 +1,10 @@
 const DPTModel = require("../model/department");
 
 const getAllDpt = async (req, res) => {
-    const { page, rows } = req.body;
+    const { page, rows,college } = req.body;
     const currentPage = page + 1;
     const offset = Math.ceil((currentPage - 1) * rows);
-    const Dept = await DPTModel.find().populate("college").skip(offset).limit(rows)
+    const Dept = await DPTModel.find({college:college}).populate("college").skip(offset).limit(rows)
     const totalDepartments = await DPTModel.countDocuments()
     return res.status(200).json({
         data: {

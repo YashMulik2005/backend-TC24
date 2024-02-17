@@ -292,6 +292,25 @@ const searchProject = async (req, res) => {
     res.status(500).send({ success: false, message: "Internal server error" });
   }
 };
+
+const hodDashboardDetails = async (req, res) => {
+  try {
+    const { department_id,hod_id,college_id } = req.body;
+    const totalProjects = await ProjectModel.countDocuments({
+      allocated_department: department_id,
+    });
+    const data = await HodModel.find({ _id: hod_id,allocated_college:college_id}).populate("allocated_college").populate("allocated_department")
+    res.send({totalProjects,hodData:data})
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: "Error occurred while updating college.",
+      },
+    });
+  }
+};
 module.exports = {
   getAllHod,
   getOneHod,
@@ -300,5 +319,5 @@ module.exports = {
   deleteproject,
   getProjects,
   editProject,
-  searchProject,
+  searchProject,hodDashboardDetails
 };

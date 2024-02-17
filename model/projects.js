@@ -37,6 +37,12 @@ const projectSchema = mongoose.Schema({
     allocated_department: {
         type: mongoose.Schema.Types.ObjectId, ref: 'dapartments'
     },
+    created_By: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Auth'
+    },
+    userType:{
+        type:String,
+    },
     time: {
         type: Date,
         default: Date.now

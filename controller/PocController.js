@@ -7,7 +7,7 @@ const DepartmentModel = require("../model/department");
 const HODModel = require("../model/hod");
 const sendmail = require("../utils/mailUtils");
 const HodModel = require("../model/hod");
-
+const cloudinary = require("../utils/imageuploadUtils");
 dotenv.config();
 const jwtkey = process.env.jwt_key;
 
@@ -91,7 +91,7 @@ const POClogin = async (req, res) => {
         status: true,
         msg: "POC Logged In Successfully",
         token: token,
-        pocDetails: data,
+        pocDetails: existpoc,
       },
     });
   }
@@ -230,8 +230,15 @@ const editDepartmentPoc = async (req, res) => {
 //   });
 // };
 const addHOD = async (req, res) => {
-  const { email, mobileNo, allocated_college, allocated_department, userType } = req.body;
-  console.log( email, mobileNo, allocated_college, allocated_department, userType );
+  const { email, mobileNo, allocated_college, allocated_department, userType } =
+    req.body;
+  console.log(
+    email,
+    mobileNo,
+    allocated_college,
+    allocated_department,
+    userType
+  );
   // Generate a random username with a maximum length of 7 characters
   function generateRandomUsername() {
     const characters = "abcdefghijklmnopqrstuvwxyz";
@@ -245,7 +252,8 @@ const addHOD = async (req, res) => {
   }
 
   function generateRandomPassword() {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let password = "";
     const passwordLength = Math.floor(Math.random() * 8) + 1; // Random length between 1 and 8
     for (let i = 0; i < passwordLength; i++) {
@@ -333,7 +341,6 @@ const addHOD = async (req, res) => {
   });
 };
 
-
 const getOnePOC = async (req, res) => {
   const { poc } = req.body;
   const data = await POCModel.find({ _id: poc });
@@ -376,7 +383,7 @@ const deleteDPT = async (req, res) => {
 };
 
 const deleteHOD = async (req, res) => {
-  const { hod_id,userType } = req.body;
+  const { hod_id, userType } = req.body;
   const user = req.user;
   if (userType != "poc") {
     return res.status(200).json({
@@ -405,24 +412,31 @@ const deleteHOD = async (req, res) => {
     },
   });
 };
-const getAllHod =async(req,res) => {
-  const { page, rows,college } = req.body;
+const getAllHod = async (req, res) => {
+  const { page, rows, college } = req.body;
   const currentPage = page + 1;
   console.log(page, rows);
   const offset = Math.ceil((currentPage - 1) * rows);
-  const Hod = await HodModel.find({allocated_college:college}).populate("allocated_college").populate("allocated_department").skip(offset).limit(rows);
-    const totalHods = await HodModel.countDocuments({allocated_college:college})
-    return res.status(200).json({
-        data: {
-            status: true,
-            data: Hod,totalHods
-        }
-    })
-}
+  const Hod = await HodModel.find({ allocated_college: college })
+    .populate("allocated_college")
+    .populate("allocated_department")
+    .skip(offset)
+    .limit(rows);
+  const totalHods = await HodModel.countDocuments({
+    allocated_college: college,
+  });
+  return res.status(200).json({
+    data: {
+      status: true,
+      data: Hod,
+      totalHods,
+    },
+  });
+};
 const editHodPoc = async (req, res) => {
   try {
     const { id, email, mobileNo, userType } = req.body;
-    console.log(id, email,mobileNo, userType);
+    console.log(id, email, mobileNo, userType);
     if (userType !== "poc") {
       return res.status(200).json({
         data: {
@@ -444,8 +458,7 @@ const editHodPoc = async (req, res) => {
       });
     }
 
-    existingDep.email=email,
-    existingDep.mobileNo=mobileNo
+    (existingDep.email = email), (existingDep.mobileNo = mobileNo);
 
     const updatedDep = await existingDep.save();
     return res.status(200).json({
@@ -462,6 +475,132 @@ const editHodPoc = async (req, res) => {
     });
   }
 };
+
+const editCollegeInfo = async (req, res) => {
+  try {
+    const { id, name, about, address, photo, userType } = req.body;
+    if (userType !== "poc") {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "You do not have permission to perform this action.",
+        },
+      });
+    }
+
+    const existingCollege = await collegeModel.findById(id);
+    if (!existingCollege) {
+      return res.status(200).json({
+        data: {
+          status: false,
+          msg: "College not found.",
+        },
+      });
+    }
+    if (photo !== null && photo !== undefined && photo !== "") {
+      const imageUrl = await cloudinary.uploader.upload(photo);
+      existingCollege.photo = imageUrl.secure_url;
+    }
+    existingCollege.name = name;
+    existingCollege.about = about;
+    existingCollege.address = address;
+
+    const updatedCollege = await existingCollege.save();
+
+    return res.status(200).json({
+      data: {
+        status: true,
+        msg: "College Updated Successfully.",
+        updatedCollege: updatedCollege,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: "Error occurred while updating college.",
+      },
+    });
+  }
+};
+
+const getOneCollege = async (req, res) => {
+  const { college_id } = req.body;
+  const data = await collegeModel.find({ _id: college_id });
+  return res.status(200).json({
+    data: {
+      status: true,
+      data: data,
+    },
+  });
+};
+
+const pocDashboardDetails = async (req, res) => {
+  try {
+    const { poc_id, college_id } = req.body;
+    const totalDepartments = await DepartmentModel.countDocuments({
+      college: college_id,
+    });
+    const totalHod = await HodModel.countDocuments({
+      allocated_college: college_id,
+    });
+    const data = await POCModel.find({
+      _id: poc_id,
+      College: college_id,
+    }).populate("College");
+    res.send({ totalHod, totalDepartments, pocData: data });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      data: {
+        status: false,
+        msg: "Error occurred while updating college.",
+      },
+    });
+  }
+};
+
+const searchDepartment = async (req, res) => {
+  try {
+    const { college, search } = req.body;
+    // const { search } = req.query; // Get the search query from the query parameters
+    console.log(college, search);
+
+    const department = await DepartmentModel.find({
+      college: college,
+      $or: [
+        { name: { $regex: ".*" + search + ".*", $options: "i" } },
+        { about: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    });
+
+    res.status(200).send({ success: true, department });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
+const searchHod = async (req, res) => {
+  try {
+    const { allocated_college, search } = req.body;
+    // const { search } = req.query; // Get the search query from the query parameters
+    console.log(allocated_college, search);
+
+    const hod = await HodModel.find({
+      allocated_college: allocated_college,
+      $or: [
+        { username: { $regex: ".*" + search + ".*", $options: "i" } },
+        { email: { $regex: ".*" + search + ".*", $options: "i" } },
+      ],
+    });
+
+    res.status(200).send({ success: true, hod });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
 module.exports = {
   getPoc,
   addCollegeInfo,
@@ -471,5 +610,12 @@ module.exports = {
   addHOD,
   getOnePOC,
   deleteDPT,
-  deleteHOD,getAllHod,editHodPoc
+  deleteHOD,
+  getAllHod,
+  editHodPoc,
+  editCollegeInfo,
+  getOneCollege,
+  pocDashboardDetails,
+  searchDepartment,
+  searchHod,
 };

@@ -12,6 +12,9 @@ const collegeSchema = mongoose.Schema({
   address: {
     type: String,
   },
+  photo: {
+    type: String,
+  },
   time: {
     type: Date,
     default: Date.now,

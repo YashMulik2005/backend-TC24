@@ -30,6 +30,7 @@ const addCollege = async (req, res) => {
       name: name,
       about: about,
       address: address,
+      photo:""
     });
     const savedCollege = await college.save();
     //console.log(savedCollege._id);

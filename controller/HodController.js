@@ -91,7 +91,8 @@ const addProject = async (req, res) => {
     allocated_college: college,
     allocated_department: department,
     type: type,
-    isActive:true
+    isActive:true,
+    userType:"HOD"
   });
   await project.save();
 

@@ -7,6 +7,6 @@ router.post('/login', authLogin);
 router.post('/signup', authSignup);
 router.get('/test', verifyToken, test)
 router.post('/getDepartment', getDepartment)
-router.post('/getAllProjects', getAllProjects)
+router.get('/getAllProjects', getAllProjects)
 
 module.exports = router;

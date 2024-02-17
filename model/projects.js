@@ -44,7 +44,7 @@ const projectSchema = mongoose.Schema({
         type:String,
     },
     isActive:{
-      type:String,
+      type: String,
       default:false
     },
     codeLink:{

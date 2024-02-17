@@ -56,7 +56,7 @@ const search = async (req, res) => {
                 data: { projects }
             });
         }
-        return res.status(404).json({ success: falsee, data: "not found" });
+        return res.status(404).json({ success: false, data: "not found" });
     } catch (error) {
         return res.status(500).json({ success: false, error: error.message });
     }

@@ -43,6 +43,14 @@ const projectSchema = mongoose.Schema({
     userType:{
         type:String,
     },
+    isActive:{
+      type:String,
+      default:false
+    },
+    codeLink:{
+      type:String,
+      default:""
+    },
     time: {
         type: Date,
         default: Date.now

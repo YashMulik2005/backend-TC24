@@ -63,4 +63,16 @@ const search = async (req, res) => {
     }
 }
 
-module.exports = { getAllprojects, getOneproject, filterproject, search }
+const addProjectByStudent =async (req,res)=>{
+    try{
+     const {title,description,multimedia,contributers,live_demo,livecount,commentcount,type,allocated_college,created_By} =req.body
+     console.log(title,description,multimedia,contributers,live_demo,livecount,commentcount,type,allocated_college,created_By)
+
+     
+
+    }catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+}
+module.exports = { getAllprojects, getOneproject, filterproject, search ,addProjectByStudent }

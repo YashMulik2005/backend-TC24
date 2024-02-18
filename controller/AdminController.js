@@ -395,6 +395,21 @@ const getTotalCount = async (req, res) => {
   }
 };
 
+const getcolleges = async (req, res) => {
+  try {
+    const data =await collegeModel.find({})
+    res.send({
+      data,
+      status:true
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+
+
 module.exports = {
   addCollege,
   addPOC,
@@ -406,5 +421,6 @@ module.exports = {
   editCollege,
   editPoc,
   searchPoc,
-  getTotalCount
+  getTotalCount,
+  getcolleges
 };

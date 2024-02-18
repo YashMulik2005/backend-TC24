@@ -8,7 +8,7 @@ const {
   searchCollege,
   getPocAdmin,
   deleteCollege,
-  deletePOC,editCollege,editPoc,searchPoc,getTotalCount
+  deletePOC,editCollege,editPoc,searchPoc,getTotalCount, getcolleges
 } = require("../controller/AdminController");
 
 router.post("/addcollege", verifyToken, addCollege);
@@ -22,4 +22,5 @@ router.post('/editCollege', verifyToken, editCollege);
 router.post('/editPoc', verifyToken, editPoc);
 router.get('/searchPoc', searchPoc);
 router.get('/getTotalCount', getTotalCount);
+router.get('/getcolleges', getcolleges);
 module.exports = router;

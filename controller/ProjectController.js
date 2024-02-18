@@ -176,5 +176,5 @@ const addProjectByStudent = async (req, res) => {
         res.status(500).send({ success: false, message: "Internal server error" });
     }
 }
-module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent, getAllProjectsByCollege }
+
 module.exports = { getAllprojects, getOneproject, filterproject, search, addProjectByStudent, getAllProjectsByCollege, searchStudentsProj }

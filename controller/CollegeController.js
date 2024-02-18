@@ -1,4 +1,7 @@
 const CollegeModel = require("../model/College");
+const HodModel = require("../model/hod");
+const projectModel = require("../model/projects");
+const authModel = require("../model/Auth");
 
 const getAllColleges = async (req, res) => {
     const Hods = await CollegeModel.find();
@@ -82,5 +85,20 @@ const search = async (req, res) => {
     }
 }
 
+const getcount = async (req, res) => {
+    try {
+        const { college_id } = req.body;
+        const totalCountHod = await HodModel.countDocuments({ allocated_college: college_id });
+        const totalcountProject = await projectModel.countDocuments({ allocated_college: college_id });
+        const totalCountStudent = await authModel.countDocuments({ allocated_college: college_id })
+        res.send({ totalcountProject, totalCountStudent, totalCountHod });
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({
+            err: err
+        })
+    }
 
-module.exports = { getAllColleges, getOneCollege, search }
+}
+
+module.exports = { getAllColleges, getOneCollege, search, getcount }

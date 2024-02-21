@@ -3,7 +3,7 @@ const cloudinary = require("../utils/imageuploadUtils");
 
 const getAllprojects = async (req, res) => {
     try {
-        const Hods = await ProjectModel.find({ isActive: "true" });
+        const Hods = await ProjectModel.find({ isActive: "true" }).sort({ time: -1 });
 
         return res.status(200).json({
             data: {
@@ -142,7 +142,7 @@ const addProjectByStudent = async (req, res) => {
             return res.status(200).json({
                 data: {
                     status: false,
-                    msg: "Project with same name exist in your collage.",
+                    err: "Project with same name exist in your collage.",
                 },
             });
         }

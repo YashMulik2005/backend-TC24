@@ -91,8 +91,8 @@ const addProject = async (req, res) => {
     allocated_college: college,
     allocated_department: department,
     type: type,
-    isActive:true,
-    userType:"HOD"
+    isActive: true,
+    userType: "HOD"
   });
   await project.save();
 
@@ -180,7 +180,7 @@ const getProjects = async (req, res) => {
     const projects = await ProjectModel.find({
       allocated_college: allocated_college,
       allocated_department: allocated_department,
-    })
+    }).sort({ time: -1 })
       .populate("allocated_college")
       .populate("allocated_department");
     const projectCount = await ProjectModel.find({
@@ -239,7 +239,7 @@ const editProject = async (req, res) => {
         },
       });
     }
-    if(multimedia.length > 0) {
+    if (multimedia.length > 0) {
       const imageUrl = await cloudinary.uploader.upload(multimedia);
       existingProject.multimedia = imageUrl.secure_url;
     }
@@ -297,12 +297,12 @@ const searchProject = async (req, res) => {
 
 const hodDashboardDetails = async (req, res) => {
   try {
-    const { department_id,hod_id,college_id } = req.body;
+    const { department_id, hod_id, college_id } = req.body;
     const totalProjects = await ProjectModel.countDocuments({
       allocated_department: department_id,
     });
-    const data = await HodModel.find({ _id: hod_id,allocated_college:college_id}).populate("allocated_college").populate("allocated_department")
-    res.send({totalProjects,hodData:data})
+    const data = await HodModel.find({ _id: hod_id, allocated_college: college_id }).populate("allocated_college").populate("allocated_department")
+    res.send({ totalProjects, hodData: data })
   } catch (err) {
     console.error(err);
     return res.status(400).json({
@@ -314,9 +314,9 @@ const hodDashboardDetails = async (req, res) => {
   }
 };
 
-const  handleStatus =async (req,res)=>{
-  try{
-    const {project_id,active} =req.body
+const handleStatus = async (req, res) => {
+  try {
+    const { project_id, active } = req.body
     const existingProject = await ProjectModel.findById(project_id);
 
     if (!existingProject) {
@@ -336,7 +336,7 @@ const  handleStatus =async (req,res)=>{
         updatedProject: updatedProject,
       },
     });
-     
+
   } catch (err) {
     console.error(err);
     return res.status(400).json({
@@ -356,5 +356,5 @@ module.exports = {
   deleteproject,
   getProjects,
   editProject,
-  searchProject,hodDashboardDetails,handleStatus
+  searchProject, hodDashboardDetails, handleStatus
 };

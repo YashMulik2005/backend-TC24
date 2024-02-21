@@ -30,7 +30,7 @@ const addCollege = async (req, res) => {
       name: name,
       about: about,
       address: address,
-      photo:""
+      photo: ""
     });
     const savedCollege = await college.save();
     //console.log(savedCollege._id);
@@ -153,7 +153,7 @@ const getAllCollegesAdmin = async (req, res) => {
   const currentPage = page + 1;
   console.log(page, rows);
   const offset = Math.ceil((currentPage - 1) * rows);
-  const Hods = await collegeModel.find().skip(offset).limit(rows);
+  const Hods = await collegeModel.find().sort({ time: -1 }).skip(offset).limit(rows);
   const totalColleges = await collegeModel.countDocuments();
   return res.status(200).json({
     data: {
@@ -189,7 +189,7 @@ const getPocAdmin = async (req, res) => {
   console.log(page, rows);
   // const skip = (currentPage - 1) * rows;
   const offset = Math.ceil((currentPage - 1) * rows);
-  const pocS = await POCModel.find({}).populate("College").skip(offset).limit(rows)
+  const pocS = await POCModel.find().sort({ time: -1 }).populate("College").skip(offset).limit(rows)
   const totalColleges = await POCModel.countDocuments();
   return res.status(200).json({
     data: {
@@ -388,7 +388,7 @@ const getTotalCount = async (req, res) => {
     const totalCountStudents = await authModel.countDocuments();
     const totalCountPoc = await POCModel.countDocuments();
     const totalCountHod = await hodModel.countDocuments();
-    res.send({ totalCountCollege,totalCountStudents ,totalCountPoc,totalCountHod});
+    res.send({ totalCountCollege, totalCountStudents, totalCountPoc, totalCountHod });
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: "Internal server error" });
@@ -397,10 +397,10 @@ const getTotalCount = async (req, res) => {
 
 const getcolleges = async (req, res) => {
   try {
-    const data =await collegeModel.find({})
+    const data = await collegeModel.find({})
     res.send({
       data,
-      status:true
+      status: true
     });
   } catch (error) {
     console.error(error);

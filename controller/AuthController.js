@@ -9,6 +9,7 @@ const pocModel = require("../model/poc");
 dotenv.config();
 const jwtkey = process.env.jwt_key;
 console.log(jwtkey);
+
 const test = async (req, res) => {
   const user = req.user;
   console.log(user);
@@ -196,7 +197,7 @@ const getAllProjects = async (req, res) => {
     const projects = await ProjectModel.find({
       isActive: "true",
       userType: "Student",
-    })
+    }).sort({ time: -1 })
       .populate("allocated_college")
       .populate("allocated_department")
       .populate("created_By");
@@ -218,13 +219,13 @@ const getAllProjects = async (req, res) => {
   }
 };
 
-const getuserproject =async(req,res)=>{
+const getuserproject = async (req, res) => {
 
-  try  {
-    const {user}=req.body
-    const data = await ProjectModel.find({created_By:user});
+  try {
+    const { user } = req.body
+    const data = await ProjectModel.find({ created_By: user, isActive: "true" }).sort({ time: -1 });
     return res.status(200).json({
-    data
+      data
     });
   } catch (error) {
     console.log(error)

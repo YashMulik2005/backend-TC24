@@ -417,7 +417,7 @@ const getAllHod = async (req, res) => {
   const currentPage = page + 1;
   console.log(page, rows);
   const offset = Math.ceil((currentPage - 1) * rows);
-  const Hod = await HodModel.find({ allocated_college: college })
+  const Hod = await HodModel.find({ allocated_college: college }).sort({ time: -1 })
     .populate("allocated_college")
     .populate("allocated_department")
     .skip(offset)
